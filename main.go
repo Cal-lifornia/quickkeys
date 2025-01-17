@@ -21,7 +21,57 @@ THE SOFTWARE.
 */
 package main
 
-import "github.com/Cal-lifornia/quickkeys/cmd"
+import (
+	"os"
+
+	"github.com/Cal-lifornia/quickkeys/cmd"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+	"gopkg.in/natefinch/lumberjack.v2"
+)
+
+var environment string
+
+func init() {
+	highPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return lvl >= zapcore.ErrorLevel
+	})
+
+	// TODO: Set log level option
+	lowPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return lvl < zapcore.ErrorLevel
+
+	})
+
+	var consoleEncoder zapcore.Encoder
+
+	if environment == "prod" {
+		consoleEncoder = zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig())
+	} else {
+		consoleEncoder = zapcore.NewConsoleEncoder(zap.NewProductionEncoderConfig())
+	}
+
+	consoleErrors := zapcore.Lock(os.Stderr)
+
+	fileLog := zapcore.AddSync(&lumberjack.Logger{
+		Filename:   "/var/tmp/quickkeys.log",
+		MaxSize:    50,
+		MaxBackups: 3,
+		MaxAge:     7,
+	})
+
+	core := zapcore.NewTee(
+		zapcore.NewCore(consoleEncoder, consoleErrors, highPriority),
+		zapcore.NewCore(consoleEncoder, fileLog, lowPriority),
+	)
+
+	logger := zap.New(core)
+
+	zap.ReplaceGlobals(logger)
+
+	zap.L().Debug("logger initialised")
+
+}
 
 func main() {
 	cmd.Execute()

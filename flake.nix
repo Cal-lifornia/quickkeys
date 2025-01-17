@@ -2,13 +2,14 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    # nixpkgs-stable.url = "github:nixos/nixpkgs/release-24.11";
+    nixpkgs-stable.url = "github:nixos/nixpkgs/release-24.11";
     flake-utils.url = "github:numtide/flake-utils";
   };
   outputs =
     {
       self,
       nixpkgs,
+      nixpkgs-stable,
       flake-utils,
       ...
     }:
@@ -17,6 +18,9 @@
       system:
       let
         pkgs = import nixpkgs {
+          inherit system;
+        };
+        pkgs-stable = import nixpkgs-stable {
           inherit system;
         };
         goVersion = 23;
@@ -32,11 +36,10 @@
               go
               gotools
               golangci-lint
-              gopls
               delve
 
               cobra-cli
-            ];
+            ] ++ ([ pkgs-stable.gopls ]);
 
             # env = { };
 
