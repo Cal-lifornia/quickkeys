@@ -32,7 +32,7 @@ import (
 
 var environment string
 
-func init() {
+func initLogger() {
 	highPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
 		return lvl >= zapcore.ErrorLevel
 	})
@@ -43,18 +43,25 @@ func init() {
 
 	})
 
-	var consoleEncoder zapcore.Encoder
+	var consoleEncoderConfig zapcore.EncoderConfig
+	var logFile string
 
 	if environment == "prod" {
-		consoleEncoder = zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig())
+		consoleEncoderConfig = zap.NewProductionEncoderConfig()
+
+		logFile = "/var/tmp/quickkeys.log"
+
 	} else {
-		consoleEncoder = zapcore.NewConsoleEncoder(zap.NewProductionEncoderConfig())
+		consoleEncoderConfig = zap.NewDevelopmentEncoderConfig()
+		logFile = "./debug.log"
 	}
+
+	consoleEncoder := zapcore.NewConsoleEncoder(consoleEncoderConfig)
 
 	consoleErrors := zapcore.Lock(os.Stderr)
 
 	fileLog := zapcore.AddSync(&lumberjack.Logger{
-		Filename:   "/var/tmp/quickkeys.log",
+		Filename:   logFile,
 		MaxSize:    50,
 		MaxBackups: 3,
 		MaxAge:     7,
@@ -65,7 +72,13 @@ func init() {
 		zapcore.NewCore(consoleEncoder, fileLog, lowPriority),
 	)
 
-	logger := zap.New(core)
+	var logger *zap.Logger
+
+	if environment == "prod" {
+		logger = zap.New(core)
+	} else {
+		logger = zap.New(core, zap.AddCaller())
+	}
 
 	zap.ReplaceGlobals(logger)
 
@@ -74,5 +87,6 @@ func init() {
 }
 
 func main() {
+	initLogger()
 	cmd.Execute()
 }
