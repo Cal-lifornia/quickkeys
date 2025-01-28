@@ -1,0 +1,42 @@
+
+theme = "catppuccin_macchiato"
+[editor]
+bufferline = "always"
+continue-comments = false
+line-number = "relative"
+
+[editor.cursor-shape]
+insert = "bar"
+
+[editor.inline-diagnostics]
+cursor-line = "hint"
+other-lines = "warning"
+
+[editor.statusline]
+center = ["file-name"]
+left = [
+  "mode",
+  "spinner",
+  "read-only-indicator",
+  "file-modification-indicator",
+  "version-control",
+]
+
+[editor.statusline.mode]
+insert = "INSERT"
+normal = "NORMAL"
+select = "SELECT"
+
+[keys.normal]
+# QK: Save all open buffers
+C-S-s = ":wa"
+C-j = "save_selection"          # QK: Save open buffer
+C-s = ":w"
+S-left = "goto_previous_buffer"
+S-right = "goto_next_buffer"
+
+[keys.normal.C-y]
+g = ":sh zellij run -c -i -x 10% -y 10% --width 80% --height 80% -- lazygit"
+h = ":sh zellij run -c -f -x 10% -y 10% --width 80% --height 80% -- ~/.local/scripts/yazi-picker hsplit"
+v = ":sh zellij run -c -f -x 10% -y 10% --width 80% --height 80% -- ~/.local/scripts/yazi-picker vsplit"
+y = ":sh zellij run -c -f -x 10% -y 10% --width 80% --height 80% -- ~/.local/scripts/yazi-picker open"
