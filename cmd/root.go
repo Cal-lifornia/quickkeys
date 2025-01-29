@@ -22,15 +22,16 @@ THE SOFTWARE.
 package cmd
 
 import (
-	"log"
+	"fmt"
 	"os"
 
 	"github.com/BurntSushi/toml"
 	conf "github.com/Cal-lifornia/quickkeys/config"
-	"github.com/natefinch/lumberjack"
+	"github.com/k0kubun/pp/v3"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 var cfgFile string
@@ -46,7 +47,9 @@ var rootCmd = &cobra.Command{
 		for a particular app can be listed out and filtered.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+	Run: func(cmd *cobra.Command, args []string) {
+		pp.Print(config)
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -65,7 +68,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.config/quickkeys/quickkeys.toml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.config/quickkeys/config.toml)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -102,16 +105,32 @@ func initAll() {
 }
 
 func initConfig() {
+	var confPath string
+
+	// If developing use a local config file
 	if environment == "dev" {
 		cfgFile = "./config.toml"
 	}
-	configFile, err := os.ReadFile(cfgFile)
-	if err != nil {
-		log.Fatalf("failed to open config file: %s", err.Error())
+	// If config is set from flag use that
+	// otherwise find it from the Home directory
+	if cfgFile != "" {
+		confPath = cfgFile
+	} else {
+		home, err := os.UserHomeDir()
+		cobra.CheckErr(err)
+		confPath = fmt.Sprintf("%s/.config/quickkeys/config.toml", home)
 	}
+
+	// Read file
+	configFile, err := os.ReadFile(confPath)
+	if err != nil {
+		cobra.CheckErr(err)
+	}
+
+	// Decode file to toml config
 	_, err = toml.Decode(string(configFile), &config)
 	if err != nil {
-		log.Fatalf("failed to decode config file: %s\n", err.Error())
+		cobra.CheckErr(err)
 	}
 }
 
@@ -124,7 +143,7 @@ func InitEnv(env string) {
 func initLogger() {
 	var chosenLogLevel zapcore.Level = zapcore.InfoLevel
 
-	switch logLevel := config.LogLevel; logLevel {
+	switch config.LogLevel {
 	case "debug":
 		chosenLogLevel = zapcore.DebugLevel
 	case "info":
@@ -133,15 +152,12 @@ func initLogger() {
 		chosenLogLevel = zapcore.WarnLevel
 	}
 
-	atom := zap.NewAtomicLevelAt(chosenLogLevel)
-
 	highPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
-		return (lvl >= zapcore.ErrorLevel && lvl.Enabled(atom.Level()))
+		return (lvl >= zapcore.ErrorLevel && lvl >= chosenLogLevel)
 	})
 
-	// TODO: Set log level option
 	lowPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
-		return (lvl < zapcore.ErrorLevel && lvl.Enabled(atom.Level()))
+		return (lvl < zapcore.ErrorLevel && lvl >= chosenLogLevel)
 	})
 
 	var consoleEncoderConfig zapcore.EncoderConfig
