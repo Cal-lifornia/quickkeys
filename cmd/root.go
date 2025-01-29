@@ -22,14 +22,20 @@ THE SOFTWARE.
 package cmd
 
 import (
-	"fmt"
+	"log"
 	"os"
 
+	"github.com/BurntSushi/toml"
+	conf "github.com/Cal-lifornia/quickkeys/config"
+	"github.com/natefinch/lumberjack"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 var cfgFile string
+
+var config conf.Config
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -53,7 +59,7 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(initConfig)
+	cobra.OnInitialize(initAll)
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
@@ -67,25 +73,116 @@ func init() {
 }
 
 // initConfig reads in config file and ENV variables if set.
+// func initConfig() {
+// 	if cfgFile != "" {
+// 		// Use config file from the flag.
+// 		viper.SetConfigFile(cfgFile)
+// 	} else {
+// 		// Find home directory.
+// 		home, err := os.UserHomeDir()
+// 		cobra.CheckErr(err)
+
+// 		// Search config in home directory with name ".quickkeys" (without extension).
+// 		viper.AddConfigPath(home)
+// 		viper.SetConfigType("toml")
+// 		viper.SetConfigName("quickkeys")
+// 	}
+
+// 	viper.AutomaticEnv() // read in environment variables that match
+
+// 	// If a config file is found, read it in.
+// 	if err := viper.ReadInConfig(); err == nil {
+// 		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+// 	}
+// }
+
+func initAll() {
+	initConfig()
+	initLogger()
+}
+
 func initConfig() {
-	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
+	if environment == "dev" {
+		cfgFile = "./config.toml"
+	}
+	configFile, err := os.ReadFile(cfgFile)
+	if err != nil {
+		log.Fatalf("failed to open config file: %s", err.Error())
+	}
+	_, err = toml.Decode(string(configFile), &config)
+	if err != nil {
+		log.Fatalf("failed to decode config file: %s\n", err.Error())
+	}
+}
+
+var environment string
+
+func InitEnv(env string) {
+	environment = env
+}
+
+func initLogger() {
+	var chosenLogLevel zapcore.Level = zapcore.InfoLevel
+
+	switch logLevel := config.LogLevel; logLevel {
+	case "debug":
+		chosenLogLevel = zapcore.DebugLevel
+	case "info":
+		chosenLogLevel = zapcore.InfoLevel
+	case "warn":
+		chosenLogLevel = zapcore.WarnLevel
+	}
+
+	atom := zap.NewAtomicLevelAt(chosenLogLevel)
+
+	highPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return (lvl >= zapcore.ErrorLevel && lvl.Enabled(atom.Level()))
+	})
+
+	// TODO: Set log level option
+	lowPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return (lvl < zapcore.ErrorLevel && lvl.Enabled(atom.Level()))
+	})
+
+	var consoleEncoderConfig zapcore.EncoderConfig
+	var logFile string
+
+	if environment == "prod" {
+		consoleEncoderConfig = zap.NewProductionEncoderConfig()
+
+		logFile = "/var/tmp/quickkeys.log"
+
 	} else {
-		// Find home directory.
-		home, err := os.UserHomeDir()
-		cobra.CheckErr(err)
-
-		// Search config in home directory with name ".quickkeys" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigType("toml")
-		viper.SetConfigName("quickkeys")
+		consoleEncoderConfig = zap.NewDevelopmentEncoderConfig()
+		logFile = "./debug.log"
 	}
 
-	viper.AutomaticEnv() // read in environment variables that match
+	consoleEncoder := zapcore.NewConsoleEncoder(consoleEncoderConfig)
 
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+	consoleErrors := zapcore.Lock(os.Stderr)
+
+	fileLog := zapcore.AddSync(&lumberjack.Logger{
+		Filename:   logFile,
+		MaxSize:    50,
+		MaxBackups: 3,
+		MaxAge:     7,
+	})
+
+	core := zapcore.NewTee(
+		zapcore.NewCore(consoleEncoder, consoleErrors, highPriority),
+		zapcore.NewCore(consoleEncoder, fileLog, lowPriority),
+	)
+
+	var logger *zap.Logger
+
+	if environment == "prod" {
+		logger = zap.New(core)
+	} else {
+		logger = zap.New(core, zap.AddCaller())
 	}
+
+	zap.ReplaceGlobals(logger)
+
+	zap.L().Debug("logger initialised")
+
 }

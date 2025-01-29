@@ -1,5 +1,11 @@
 package reader
 
+import "go.uber.org/zap"
+
+var logger *zap.Logger = zap.L().With(
+	zap.String("service", "reader"),
+)
+
 type AppConfig struct {
 	Name string `toml:"name"`
 	// Alias for the app name to make searching easier
