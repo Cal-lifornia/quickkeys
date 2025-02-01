@@ -9,7 +9,7 @@ var helixConfig AppConfig = AppConfig{
 
 type helixToml struct {
 	Keys struct {
-		Normal map[string]string `toml:"normal"`
-		Insert map[string]string `toml:"insert"`
-	}
+		Normal []KeyGroup `toml:"normal"`
+		Insert []KeyGroup `toml:"insert"`
+	} `toml:"keys"`
 }

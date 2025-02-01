@@ -29,7 +29,7 @@ type KeyBind struct {
 	Desc    string `json:"desc,omitempty"`
 }
 
-type KeyGroups struct {
+type KeyGroup struct {
 	Name string    `json:"name"`
 	Keys []KeyBind `json:"keys"`
 }
