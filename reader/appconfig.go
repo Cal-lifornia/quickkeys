@@ -28,3 +28,8 @@ type KeyBind struct {
 	Command string `json:"cmd"`
 	Desc    string `json:"desc,omitempty"`
 }
+
+type KeyGroups struct {
+	Name string    `json:"name"`
+	Keys []KeyBind `json:"keys"`
+}
