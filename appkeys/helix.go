@@ -1,4 +1,4 @@
-package reader
+package appkeys
 
 var helixConfig AppConfig = AppConfig{
 	Name:         "Helix",

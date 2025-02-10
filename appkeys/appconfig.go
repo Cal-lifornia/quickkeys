@@ -1,4 +1,4 @@
-package reader
+package appkeys
 
 import "go.uber.org/zap"
 
