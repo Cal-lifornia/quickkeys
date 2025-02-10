@@ -9,7 +9,7 @@ var logger *zap.Logger = zap.L().With(
 type AppConfig struct {
 	Name string `toml:"name"`
 	// Alias for the app name to make searching easier
-	Alias []string `toml:"alias"`
+	Alias []string `toml:"aliases"`
 	// Leading slash means folder otherwise it's a file
 	ConfigPath   string `toml:"path"`
 	findKey      func(args args) []KeyBind

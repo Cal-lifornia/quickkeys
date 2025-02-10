@@ -25,6 +25,10 @@ import (
 	"github.com/Cal-lifornia/quickkeys/cmd"
 )
 
+type helixToml struct {
+	Keys map[string]interface{} `toml:"keys"`
+}
+
 var environment string
 
 func main() {
