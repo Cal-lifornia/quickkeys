@@ -44,6 +44,6 @@ hosts = [
   "omega"
 ]
 `)
-	assert.NoError(err, "Parser should execute with no error")
+	assert.NoError(t, err, "TOML parser should start with no errors")
 	repr.Println(toml)
 }

@@ -3,7 +3,7 @@ package appkeys
 import "go.uber.org/zap"
 
 var logger *zap.Logger = zap.L().With(
-	zap.String("service", "reader"),
+	zap.String("service", "appkeys"),
 )
 
 type AppConfig struct {
@@ -11,9 +11,8 @@ type AppConfig struct {
 	// Alias for the app name to make searching easier
 	Alias []string `toml:"aliases"`
 	// Leading slash means folder otherwise it's a file
-	ConfigPath   string `toml:"path"`
-	findKey      func(args args) []KeyBind
-	commentToken string
+	ConfigPath string `toml:"path"`
+	findKey    func(args args) []KeyBind
 }
 
 // Arguments for the findKey function in an AppConfig
