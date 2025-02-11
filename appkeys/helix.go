@@ -5,16 +5,17 @@ import (
 	"strings"
 
 	"github.com/Cal-lifornia/quickkeys/appkeys/parsers"
+	"github.com/Cal-lifornia/quickkeys/types"
 	"go.uber.org/zap"
 )
 
-var helixConfig AppConfig = AppConfig{
+var helixConfig types.AppConfig = types.AppConfig{
 	Name:       "Helix",
 	Alias:      []string{"hx"},
 	ConfigPath: "HOME/.config/helix/config.toml",
 }
 
-func getHelixKeys(conf *AppConfig) (*[]parsers.Entry, error) {
+func getHelixKeysEntries(conf *types.AppConfig) (*[]parsers.Entry, error) {
 	localLogger := logger.With(
 		zap.String("file", conf.ConfigPath),
 	)
@@ -26,6 +27,7 @@ func getHelixKeys(conf *AppConfig) (*[]parsers.Entry, error) {
 		localLogger.Error("failed to open Helix config file")
 		return nil, err
 	}
+	defer file.Close()
 	parsedFile, err := parsers.TomlParser.Parse(conf.ConfigPath, file)
 
 	if err != nil {
@@ -44,3 +46,8 @@ func getHelixKeys(conf *AppConfig) (*[]parsers.Entry, error) {
 
 	return &keysEntries, nil
 }
+
+// func parseHelixKeys(conf *AppConfig) error {
+
+// 	return nil
+// }

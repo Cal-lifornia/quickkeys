@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestExe(t *testing.T) {
+func TestToml(t *testing.T) {
 	toml, err := TomlParser.ParseString("", `
 # This is a TOML document.
 
