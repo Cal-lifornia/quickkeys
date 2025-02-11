@@ -28,9 +28,10 @@ normal = "NORMAL"
 select = "SELECT"
 
 [keys.normal]
-# QK: Save all open buffers
+# Saves all open buffers
 C-S-s = ":wa"
-C-j = "save_selection"          # QK: Save open buffer
+# Save open buffer
+C-j = "save_selection"
 C-s = ":w"
 S-left = "goto_previous_buffer"
 S-right = "goto_next_buffer"

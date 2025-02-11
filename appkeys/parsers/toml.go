@@ -40,7 +40,7 @@ type Value struct {
 	Time     *string  `| @Time`
 	Bool     *bool    `| (@"true" | "false")`
 	Number   *float64 `| @Number`
-	List     []*Value `| "[" ( @@ ( "," @@ )* )? "]"`
+	List     []*Value `| ("[" ( @@ ","? ( @@  ",")* )? "]")`
 }
 
 type Section struct {
@@ -53,7 +53,8 @@ var (
 		{"DateTime", `\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?(-\d\d:\d\d)?`},
 		{"Date", `\d\d\d\d-\d\d-\d\d`},
 		{"Time", `\d\d:\d\d:\d\d(\.\d+)?`},
-		{"Ident", `[a-zA-Z_][a-zA-Z_0-9]*`},
+		{"Ident", `[a-zA-Z_\-][a-zA-Z_0-9\-]*`},
+
 		{"String", `"[^"]*"`},
 		{"Number", `[-+]?[.0-9]+\b`},
 		{"Punct", `\[|]|[-!()+/*=,]`},

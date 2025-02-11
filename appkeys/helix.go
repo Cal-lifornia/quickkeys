@@ -2,6 +2,7 @@ package appkeys
 
 import (
 	"os"
+	"strings"
 
 	"github.com/Cal-lifornia/quickkeys/appkeys/parsers"
 	"go.uber.org/zap"
@@ -13,7 +14,7 @@ var helixConfig AppConfig = AppConfig{
 	ConfigPath: "HOME/.config/helix/config.toml",
 }
 
-func parseHelixConfig(conf *AppConfig) ([]KeyGroup, error) {
+func getHelixKeys(conf *AppConfig) (*[]parsers.Entry, error) {
 	localLogger := logger.With(
 		zap.String("file", conf.ConfigPath),
 	)
@@ -36,10 +37,10 @@ func parseHelixConfig(conf *AppConfig) ([]KeyGroup, error) {
 	var keysEntries []parsers.Entry = []parsers.Entry{}
 
 	for _, entry := range parsedFile.Entries {
-		if *entry == parsers.Section {
-
+		if strings.Contains(entry.Section.Name, "keys") {
+			keysEntries = append(keysEntries, *entry)
 		}
 	}
 
-	return nil, nil
+	return &keysEntries, nil
 }
