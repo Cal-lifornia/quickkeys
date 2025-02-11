@@ -40,7 +40,7 @@ type Value struct {
 	Time     *string  `| @Time`
 	Bool     *bool    `| (@"true" | "false")`
 	Number   *float64 `| @Number`
-	List     []*Value `| ("[" ( @@ ","? ( @@  ",")* )? "]")`
+	List     []*Value `| ("[" ( @@ ","? ( @@  ","?)* )? "]")`
 }
 
 type Section struct {

@@ -19,7 +19,13 @@ dob = 1979-05-27T07:32:00-08:00 # First class dates
 
 [database]
 server = "192.168.1.1"
+port = [ "8000" ]
 ports = [ 8001, 8001, 8002 ]
+porting = [
+    8001,
+    8001,
+    8002,
+]
 connection_max = 5000
 enabled = true
 enabled = false
