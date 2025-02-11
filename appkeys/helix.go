@@ -15,36 +15,44 @@ var helixConfig types.AppConfig = types.AppConfig{
 	ConfigPath: "HOME/.config/helix/config.toml",
 }
 
-func getHelixKeysEntries(conf *types.AppConfig) (*[]parsers.Entry, error) {
-	localLogger := logger.With(
-		zap.String("file", conf.ConfigPath),
+func getHelixKeysEntries(confPath string) ([]parsers.Entry, error) {
+	localLogger := zap.L().With(
+		zap.String("file", confPath),
 	)
 
 	localLogger.Debug("Starting parse of Helix config")
 
-	file, err := os.Open(conf.ConfigPath)
+	file, err := os.Open(confPath)
+	defer func() {
+		err = file.Close()
+		if err != nil {
+			localLogger.Fatal("failed to close files")
+		}
+	}()
 	if err != nil {
 		localLogger.Error("failed to open Helix config file")
 		return nil, err
 	}
-	defer file.Close()
-	parsedFile, err := parsers.TomlParser.Parse(conf.ConfigPath, file)
+	localLogger.Debug("opened helix file successfully")
+	parsedFile, err := parsers.TomlParser.Parse(confPath, file)
 
 	if err != nil {
 		localLogger.Error("failed to parse Helix config file")
 		return nil, err
-
 	}
+	localLogger.Debug("parsed helix config file")
 
-	var keysEntries []parsers.Entry = []parsers.Entry{}
+	keysEntries := []parsers.Entry{}
 
 	for _, entry := range parsedFile.Entries {
-		if strings.Contains(entry.Section.Name, "keys") {
-			keysEntries = append(keysEntries, *entry)
+		if entry.Section != nil {
+			if strings.Contains(entry.Section.Name, "keys") {
+				keysEntries = append(keysEntries, *entry)
+			}
 		}
 	}
 
-	return &keysEntries, nil
+	return keysEntries, nil
 }
 
 // func parseHelixKeys(conf *AppConfig) error {

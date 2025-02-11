@@ -6,25 +6,30 @@ import (
 
 	"github.com/Cal-lifornia/quickkeys/config"
 	"github.com/Cal-lifornia/quickkeys/types"
-	"github.com/alecthomas/repr"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
 )
 
 type HelixTestSuite struct {
 	suite.Suite
 	testAppConf types.AppConfig
 	config.Config
+	logger *zap.Logger
 }
 
 func (suite *HelixTestSuite) SetupTest() {
-	os.Setenv("ENVIRONMENT", "test")
+	os.Setenv("ENVIRONMENT", "testing")
 
 	suite.Config = config.Config{
 		LogLevel: "debug",
 	}
 
-	config.InitLogger(&suite.Config, "test")
+	config.InitLogger(&suite.Config, "testing")
+
+	suite.logger = zap.L().With(
+		zap.String("mode", "testing"),
+	)
 
 	suite.testAppConf = types.AppConfig{
 		Name:       "Helix",
@@ -35,9 +40,11 @@ func (suite *HelixTestSuite) SetupTest() {
 
 func (suite *HelixTestSuite) TestGetHelixKeysEntries() {
 
-	results, err := getHelixKeysEntries(&suite.testAppConf)
+	results, err := getHelixKeysEntries(suite.testAppConf.ConfigPath)
 	if assert.NoError(suite.T(), err, "should be no error: ") {
-		repr.Println(results)
+		suite.logger.Info("successfully ran test",
+			zap.Any("results", results),
+		)
 	}
 }
 
