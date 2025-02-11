@@ -40,12 +40,8 @@ func (suite *HelixTestSuite) SetupTest() {
 
 func (suite *HelixTestSuite) TestGetHelixKeysEntries() {
 
-	results, err := getHelixKeysEntries(suite.testAppConf.ConfigPath)
-	if assert.NoError(suite.T(), err, "should be no error: ") {
-		suite.logger.Info("successfully ran test",
-			zap.Any("results", results),
-		)
-	}
+	_, err := getHelixKeysEntries(suite.testAppConf.ConfigPath)
+	assert.NoError(suite.T(), err, "should be no error: ")
 }
 
 func TestHelixTestSuite(t *testing.T) {
