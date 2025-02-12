@@ -8,6 +8,8 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
+var globalLogger *zap.Logger
+
 func InitLogger(config *Config, environment string) {
 
 	var chosenLogLevel zapcore.Level = zapcore.InfoLevel
@@ -19,6 +21,8 @@ func InitLogger(config *Config, environment string) {
 		chosenLogLevel = zapcore.InfoLevel
 	case "warn":
 		chosenLogLevel = zapcore.WarnLevel
+	default:
+		chosenLogLevel = zapcore.InfoLevel
 	}
 
 	highPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
@@ -65,7 +69,14 @@ func InitLogger(config *Config, environment string) {
 		logger = zap.New(core, zap.AddCaller())
 	}
 
-	zap.ReplaceGlobals(logger)
+	globalLogger = logger
+}
 
-	zap.L().Debug("logger initialised")
+func SetLogger(input *zap.Logger) {
+	globalLogger = input
+	globalLogger.Sync()
+}
+
+func L() *zap.Logger {
+	return globalLogger
 }

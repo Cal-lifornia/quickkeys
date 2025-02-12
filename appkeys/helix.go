@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/Cal-lifornia/quickkeys/appkeys/parsers"
+	"github.com/Cal-lifornia/quickkeys/config"
 	"github.com/Cal-lifornia/quickkeys/types"
 	"go.uber.org/zap"
 )
@@ -16,7 +17,7 @@ var helixConfig types.AppConfig = types.AppConfig{
 }
 
 func getHelixKeysEntries(confPath string) ([]parsers.Entry, error) {
-	localLogger := zap.L().With(
+	localLogger := config.L().With(
 		zap.String("file", confPath),
 	)
 

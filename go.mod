@@ -11,7 +11,7 @@ require (
 )
 
 require (
-	github.com/fatih/color v1.18.0 // indirect
+	github.com/benbjohnson/clock v1.1.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 

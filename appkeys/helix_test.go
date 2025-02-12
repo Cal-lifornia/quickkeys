@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zaptest"
 )
 
 type HelixTestSuite struct {
@@ -25,11 +26,9 @@ func (suite *HelixTestSuite) SetupTest() {
 		LogLevel: "debug",
 	}
 
-	config.InitLogger(&suite.Config, "testing")
+	suite.logger = zaptest.NewLogger(suite.T(), zaptest.WrapOptions(zap.AddCaller()))
 
-	suite.logger = zap.L().With(
-		zap.String("mode", "testing"),
-	)
+	config.SetLogger(suite.logger)
 
 	suite.testAppConf = types.AppConfig{
 		Name:       "Helix",
@@ -39,9 +38,10 @@ func (suite *HelixTestSuite) SetupTest() {
 }
 
 func (suite *HelixTestSuite) TestGetHelixKeysEntries() {
-
 	_, err := getHelixKeysEntries(suite.testAppConf.ConfigPath)
-	assert.NoError(suite.T(), err, "should be no error: ")
+	if assert.NoError(suite.T(), err, "should be no error: ") {
+		suite.logger.Error("successful test")
+	}
 }
 
 func TestHelixTestSuite(t *testing.T) {

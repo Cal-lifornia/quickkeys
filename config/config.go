@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var config Config
+var globalConfig *Config
 
 var (
 	meta         string = "Meta"
@@ -26,14 +26,14 @@ var (
 )
 
 type Config struct {
-	LogLevel   string `toml:"log_level" default:"info"`
-	Symbols    bool
+	LogLevel   string            `toml:"log_level" default:"info"`
+	Symbols    bool              `toml:"symbols" default:"false"`
 	AppConfigs []types.AppConfig `toml:"apps"`
 }
 
 // Returns a global Config
 func C() *Config {
-	return &config
+	return globalConfig
 }
 
 func (config *Config) Meta() string {
@@ -53,24 +53,36 @@ func (config *Config) Alt() string {
 }
 
 func InitConfig(confPath string) {
+	if confPath != "" {
 
-	// Read file
-	configFile, err := os.ReadFile(confPath)
-	if err != nil {
-		cobra.CheckErr(err)
+		// Read file
+		configFile, err := os.ReadFile(confPath)
+		if err != nil {
+			cobra.CheckErr(err)
+		}
+
+		// Decode file to toml config
+		_, err = toml.Decode(string(configFile), &globalConfig)
+		if err != nil {
+			cobra.CheckErr(err)
+		}
+
+	} else {
+		globalConfig = &Config{
+			LogLevel:   "debug",
+			Symbols:    false,
+			AppConfigs: []types.AppConfig{},
+		}
 	}
-
-	// Decode file to toml config
-	_, err = toml.Decode(string(configFile), &config)
-	if err != nil {
-		cobra.CheckErr(err)
-	}
-
 	initKeys()
 }
 
+func SetConfig(config *Config) {
+	globalConfig = config
+}
+
 func initKeys() {
-	if config.Symbols == true {
+	if globalConfig.Symbols == true {
 		meta = metaSymbol
 		ctrl = ctrlSymbol
 		shift = shiftSymbol
