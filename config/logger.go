@@ -36,9 +36,6 @@ func InitLogger(config *Config, environment string) {
 		consoleEncoderConfig = zap.NewProductionEncoderConfig()
 		logFile = "/var/tmp/quickkeys.log"
 
-	} else if environment == "testing" {
-		consoleEncoderConfig = zap.NewDevelopmentEncoderConfig()
-		logFile = "./test.log"
 	} else {
 		consoleEncoderConfig = zap.NewDevelopmentEncoderConfig()
 		logFile = "./debug.log"

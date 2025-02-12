@@ -25,15 +25,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/BurntSushi/toml"
-	conf "github.com/Cal-lifornia/quickkeys/config"
+	"github.com/Cal-lifornia/quickkeys/config"
 	"github.com/k0kubun/pp/v3"
 	"github.com/spf13/cobra"
 )
 
 var cfgFile string
-
-var config conf.Config
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -97,13 +94,7 @@ func init() {
 // }
 
 func initAll() {
-	initConfig()
-	conf.InitLogger(&config, environment)
-}
-
-func initConfig() {
 	var confPath string
-
 	// If developing use a local config file
 	if environment == "dev" {
 		cfgFile = "./config.toml"
@@ -118,17 +109,8 @@ func initConfig() {
 		confPath = fmt.Sprintf("%s/.config/quickkeys/config.toml", home)
 	}
 
-	// Read file
-	configFile, err := os.ReadFile(confPath)
-	if err != nil {
-		cobra.CheckErr(err)
-	}
-
-	// Decode file to toml config
-	_, err = toml.Decode(string(configFile), &config)
-	if err != nil {
-		cobra.CheckErr(err)
-	}
+	config.InitConfig(confPath)
+	config.InitLogger(config.C(), environment)
 }
 
 var environment string
