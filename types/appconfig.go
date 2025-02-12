@@ -15,14 +15,3 @@ type args struct {
 	Command string `default:".*"`
 	Desc    string `default:".*"`
 }
-
-type KeyBind struct {
-	Keys    string `json:"keys"`
-	Command string `json:"cmd"`
-	Desc    string `json:"desc,omitempty"`
-}
-
-type KeyGroup struct {
-	Name string    `json:"name"`
-	Keys []KeyBind `json:"keys"`
-}
