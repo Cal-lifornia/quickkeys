@@ -4,17 +4,12 @@ import (
 	"os"
 
 	"github.com/BurntSushi/toml"
-	"github.com/Cal-lifornia/quickkeys/types"
 	"github.com/spf13/cobra"
 )
 
 var globalConfig *Config
 
 var (
-	meta         string = "Meta"
-	ctrl         string = "Ctrl"
-	shift        string = "Shift"
-	altKey       string = "Alt"
 	metaText     string = "Meta"
 	ctrlText     string = "Ctrl"
 	shiftText    string = "Shift"
@@ -26,9 +21,13 @@ var (
 )
 
 type Config struct {
-	LogLevel   string            `toml:"log_level" default:"info"`
-	Symbols    bool              `toml:"symbols" default:"false"`
-	AppConfigs []types.AppConfig `toml:"apps"`
+	LogLevel string `toml:"log_level" default:"info"`
+	Symbols  bool   `toml:"symbols" default:"false"`
+	meta     string
+	ctrl     string
+	shift    string
+	altKey   string
+	// AppConfigs []types.AppConfig `toml:"apps"`
 }
 
 // Returns a global Config
@@ -37,22 +36,23 @@ func C() *Config {
 }
 
 func (config *Config) Meta() string {
-	return meta
+	return config.meta
 }
 
 func (config *Config) Ctrl() string {
-	return ctrl
+	return config.ctrl
 }
 
 func (config *Config) Shift() string {
-	return shift
+	return config.shift
 }
 
 func (config *Config) Alt() string {
-	return altKey
+	return config.altKey
 }
 
 func InitConfig(confPath string) {
+	var config *Config
 	if confPath != "" {
 
 		// Read file
@@ -62,35 +62,35 @@ func InitConfig(confPath string) {
 		}
 
 		// Decode file to toml config
-		_, err = toml.Decode(string(configFile), &globalConfig)
+		_, err = toml.Decode(string(configFile), &config)
 		if err != nil {
 			cobra.CheckErr(err)
 		}
 
 	} else {
-		globalConfig = &Config{
-			LogLevel:   "debug",
-			Symbols:    false,
-			AppConfigs: []types.AppConfig{},
+		config = &Config{
+			LogLevel: "debug",
+			Symbols:  false,
 		}
 	}
-	initKeys()
+	config.InitKeys()
+	SetGlobalConfig(config)
 }
 
-func SetConfig(config *Config) {
+func SetGlobalConfig(config *Config) {
 	globalConfig = config
 }
 
-func initKeys() {
-	if globalConfig.Symbols == true {
-		meta = metaSymbol
-		ctrl = ctrlSymbol
-		shift = shiftSymbol
-		altKey = altKeySymbol
+func (config *Config) InitKeys() {
+	if config.Symbols == true {
+		config.meta = metaSymbol
+		config.ctrl = ctrlSymbol
+		config.shift = shiftSymbol
+		config.altKey = altKeySymbol
 	} else {
-		meta = metaText
-		ctrl = ctrlText
-		shift = shiftText
-		altKey = altKeyText
+		config.meta = metaText
+		config.ctrl = ctrlText
+		config.shift = shiftText
+		config.altKey = altKeyText
 	}
 }

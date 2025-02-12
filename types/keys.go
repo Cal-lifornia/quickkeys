@@ -1,5 +1,7 @@
 package types
 
+import "github.com/Cal-lifornia/quickkeys/config"
+
 type KeyBind struct {
 	Keys    KeyCombo `json:"keys"`
 	Command string   `json:"cmd"`
@@ -22,16 +24,16 @@ type KeyCombo struct {
 func (kc KeyCombo) String() string {
 	result := ""
 	if kc.Meta {
-		result += "Meta +"
-	}
-	if kc.Shift {
-		result += "Shift +"
+		result += config.C().Meta() + " +"
 	}
 	if kc.Ctrl {
-		result += "Ctrl +"
+		result += config.C().Ctrl() + " +"
+	}
+	if kc.Shift {
+		result += config.C().Shift() + " +"
 	}
 	if kc.AltKey {
-		result += "Alt +"
+		result += config.C().Alt() + " +"
 	}
 
 	for i := 0; i < len(kc.Keys); i++ {

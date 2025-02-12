@@ -1,2 +1,2 @@
 [language-server.gopls.config]
-buildFlags = ["-tags=darwin linux windows integration"]
+buildFlags = ["-tags=darwin linux windows integration test"]
