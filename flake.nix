@@ -37,6 +37,7 @@
               rust-analyzer
               cargo-watch
               cargo-xwin
+              cargo-insta
               (rust-bin.stable.latest.default)
             ];
 
