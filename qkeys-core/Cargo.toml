@@ -4,3 +4,24 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+qkeys-macro = { path = "../qkeys-macro", version = "0.1.0" }
+qkeys-shared = { path = "../qkeys-shared", version = "0.1.0" }
+qkeys-config = { path = "../qkeys-config", version = "0.1.0" }
+
+# External dependencies
+tokio = { workspace = true }
+tokio-util = { workspace = true }
+tokio-stream = { workspace = true }
+serde = { workspace = true }
+thiserror = { workspace = true }
+hashbrown = { workspace = true }
+rayon = { workspace = true }
+strum = { workspace = true }
+tracing = { workspace = true }
+url = { workspace = true }
+either = { workspace = true }
+regex = { workspace = true }
+
+[dev-dependencies]
+insta = { workspace = true }
+rstest = { workspace = true }

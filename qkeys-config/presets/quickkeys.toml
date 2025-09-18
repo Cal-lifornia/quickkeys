@@ -11,3 +11,6 @@ log_level = "Info"
 "search" = "/"
 "page_down" = ["S-down"]
 "help" = "?"
+
+[targets]
+helix = { enabled = true }
