@@ -1,0 +1,13 @@
+# Log level for the max log levels, choices are Error, Warning, Info and Debug
+log_level = "Info"
+
+# Action = "KeyCombo" | ["KeyCombo1", "KeyCombo2" ,..."KeyComboN"]
+# For KeyCombos with no modifiers it's a singular char for most keys but non chars have a dedicated symbol
+# Modifiers are S(Shift),A(Alt) and C(Ctrl)
+[app-keybinds]
+"move_left" = ["h", "left"]
+"move_right" = ["l", "right"]
+"exit" = ["q", "Esc", "C-c"]
+"search" = "/"
+"page_down" = ["S-down"]
+"help" = "?"

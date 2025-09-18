@@ -1,0 +1,12 @@
+[package]
+name = "qkeys-shared"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+qkeys-macro = { path = "../qkeys-macro", version = "0.1.0" }
+
+# External deps
+serde = { workspace = true }
+bytes = { workspace = true }
+hashbrown = { workspace = true }

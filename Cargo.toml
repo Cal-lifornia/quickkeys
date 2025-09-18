@@ -1,6 +1,12 @@
 [workspace]
 resolver = "3"
-members = [ "qkeys-app", "qkeys-config", "qkeys-core","qkeys-macro"]
+members = [
+  "qkeys-app",
+  "qkeys-config",
+  "qkeys-core",
+  "qkeys-macro",
+  "qkeys-shared",
+]
 
 [workspace.dependencies]
 crossterm = "0.28.1"
@@ -13,7 +19,7 @@ rayon = "1.11"
 anyhow = "1.0.99"
 thiserror = "2.0.16"
 insta = { version = "1.43.1" }
-serde = { version = "1.0.225", features = [] }
+serde = { version = "1.0.225", features = ["derive"] }
 tracing = "0.1"
 tracing-appender = "0.2.3"
 tracing-error = "0.2.1"
@@ -21,3 +27,6 @@ tracing-subscriber = "0.3.20"
 hashbrown = "0.16"
 strum = { version = "0.27", features = ["derive"] }
 futures = "0.3.31"
+toml = "0.9.6"
+rstest = "0.26.1"
+bytes = "1.10.1"
